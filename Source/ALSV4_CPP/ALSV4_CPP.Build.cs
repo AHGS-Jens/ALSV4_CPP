@@ -1,4 +1,9 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+// Project:         Advanced Locomotion System V4 on C++
+// Copyright:       Copyright (C) 2020 Doğa Can Yanıkoğlu
+// License:         MIT License (http://www.opensource.org/licenses/mit-license.php)
+// Source Code:     https://github.com/dyanikoglu/ALSV4_CPP
+// Original Author: Doğa Can Yanıkoğlu
+// Contributors:  
 
 using UnrealBuildTool;
 
@@ -8,7 +13,7 @@ public class ALSV4_CPP : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] {"Core", "CoreUObject", "Engine", "InputCore"});
+		PublicDependencyModuleNames.AddRange(new string[] {"Core", "CoreUObject", "Engine", "InputCore", "NavigationSystem", "AIModule", "GameplayTasks"});
 
 		PrivateDependencyModuleNames.AddRange(new string[] {"Slate", "SlateCore"});
 	}

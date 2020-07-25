@@ -1,9 +1,17 @@
-// Copyright (C) 2020, Doga Can Yanikoglu
+// Project:         Advanced Locomotion System V4 on C++
+// Copyright:       Copyright (C) 2020 Doğa Can Yanıkoğlu
+// License:         MIT License (http://www.opensource.org/licenses/mit-license.php)
+// Source Code:     https://github.com/dyanikoglu/ALSV4_CPP
+// Original Author: Doğa Can Yanıkoğlu
+// Contributors:    
 
 
 #include "Character/ALSCharacter.h"
+#include "Engine/StaticMesh.h"
+#include "Character/AI/ALSAIController.h"
 
-AALSCharacter::AALSCharacter()
+AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
+	:Super(ObjectInitializer)
 {
 	HeldObjectRoot = CreateDefaultSubobject<USceneComponent>(TEXT("HeldObjectRoot"));
 	HeldObjectRoot->SetupAttachment(GetMesh());
@@ -13,6 +21,8 @@ AALSCharacter::AALSCharacter()
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(HeldObjectRoot);
+
+	AIControllerClass = AALSAIController::StaticClass();
 }
 
 void AALSCharacter::ClearHeldObject()
@@ -110,6 +120,8 @@ void AALSCharacter::Tick(float DeltaTime)
 void AALSCharacter::BeginPlay()
 {
 	Super::BeginPlay();
+
+	UpdateHeldObject();
 }
 
 void AALSCharacter::MantleStart(float MantleHeight, const FALSComponentAndTransform& MantleLedgeWS,
