@@ -11,7 +11,7 @@
 #include "Character/AI/ALSAIController.h"
 
 AALSCharacter::AALSCharacter(const FObjectInitializer& ObjectInitializer)
-	:Super(ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	HeldObjectRoot = CreateDefaultSubobject<USceneComponent>(TEXT("HeldObjectRoot"));
 	HeldObjectRoot->SetupAttachment(GetMesh());
@@ -33,7 +33,7 @@ void AALSCharacter::ClearHeldObject()
 }
 
 void AALSCharacter::AttachToHand(UStaticMesh* NewStaticMesh, USkeletalMesh* NewSkeletalMesh, UClass* NewAnimClass,
-                                bool bLeftHand, FVector Offset)
+                                 bool bLeftHand, FVector Offset)
 {
 	ClearHeldObject();
 
@@ -79,17 +79,9 @@ void AALSCharacter::RagdollEnd()
 
 ECollisionChannel AALSCharacter::GetThirdPersonTraceParams(FVector& TraceOrigin, float& TraceRadius)
 {
-	if (bRightShoulder)
-	{
-		TraceOrigin = GetMesh()->GetSocketLocation(TEXT("TP_CameraTrace_R"));
-		TraceRadius = 15.0f;
-	}
-	else
-	{
-		TraceOrigin = GetMesh()->GetSocketLocation(TEXT("TP_CameraTrace_L"));
-		TraceRadius = 15.0f;
-	}
-
+	FName CameraSocketName = bRightShoulder ? TEXT("TP_CameraTrace_R") : TEXT("TP_CameraTrace_L");
+	TraceOrigin = GetMesh()->GetSocketLocation(CameraSocketName);
+	TraceRadius = 15.0f;
 	return ECC_Camera;
 }
 
@@ -125,7 +117,7 @@ void AALSCharacter::BeginPlay()
 }
 
 void AALSCharacter::MantleStart(float MantleHeight, const FALSComponentAndTransform& MantleLedgeWS,
-                               EALSMantleType MantleType)
+                                EALSMantleType MantleType)
 {
 	Super::MantleStart(MantleHeight, MantleLedgeWS, MantleType);
 	if (MantleType != EALSMantleType::LowMantle)

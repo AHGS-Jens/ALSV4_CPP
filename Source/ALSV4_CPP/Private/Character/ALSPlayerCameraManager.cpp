@@ -8,6 +8,8 @@
 
 #include "Character/ALSPlayerCameraManager.h"
 
+
+#include "DrawDebugHelpers.h"
 #include "Character/ALSBaseCharacter.h"
 #include "Character/Animation/ALSPlayerCameraBehavior.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -31,6 +33,11 @@ void AALSPlayerCameraManager::OnPossess(AALSBaseCharacter* NewCharacter)
 	{
 		CastedBehv->PlayerController = GetOwningPlayerController();
 		CastedBehv->ControlledPawn = ControlledCharacter;
+
+		// Initial position
+		const FVector& TPSLoc = ControlledCharacter->GetThirdPersonPivotTarget().GetLocation();
+		SetActorLocation(TPSLoc);
+		SmoothedPivotTarget.SetLocation(TPSLoc);
 	}
 }
 
@@ -54,21 +61,17 @@ void AALSPlayerCameraManager::UpdateViewTargetInternal(FTViewTarget& OutVT, floa
 		FRotator OutRotation;
 		float OutFOV;
 
-		if (OutVT.Target->ActorHasTag(CustomTag) && CustomCameraBehavior(DeltaTime, OutLocation, OutRotation, OutFOV))
+		if (CustomCameraBehavior(DeltaTime, OutLocation, OutRotation, OutFOV))
 		{
 			OutVT.POV.Location = OutLocation;
 			OutVT.POV.Rotation = OutRotation;
 			OutVT.POV.FOV = OutFOV;
 		}
-		else
-		{
-			OutVT.Target->CalcCamera(DeltaTime, OutVT.POV);
-		}
 	}
 }
 
 FVector AALSPlayerCameraManager::CalculateAxisIndependentLag(FVector CurrentLocation, FVector TargetLocation,
-                                                            FRotator CameraRotation, FVector LagSpeeds, float DeltaTime)
+                                                             FRotator CameraRotation, FVector LagSpeeds, float DeltaTime)
 {
 	CameraRotation.Roll = 0.0f;
 	CameraRotation.Pitch = 0.0f;
@@ -89,7 +92,7 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 	{
 		return false;
 	}
-	
+
 	// Step 1: Get Camera Parameters from CharacterBP via the Camera Interface
 	const FTransform& PivotTarget = ControlledCharacter->GetThirdPersonPivotTarget();
 	const FVector& FPTarget = ControlledCharacter->GetFirstPersonCameraTarget();
@@ -140,7 +143,7 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 	// Trace origins are set within the Character BP via the Camera Interface.
 	// Functions like the normal spring arm, but can allow for different trace origins regardless of the pivot
 	FVector TraceOrigin;
-	float TraceRadius = 0.0f;
+	float TraceRadius;
 	ECollisionChannel TraceChannel = ControlledCharacter->GetThirdPersonTraceParams(TraceOrigin, TraceRadius);
 
 	UWorld* World = GetWorld();
@@ -148,6 +151,7 @@ bool AALSPlayerCameraManager::CustomCameraBehavior(float DeltaTime, FVector& Loc
 
 	FCollisionQueryParams Params;
 	Params.AddIgnoredActor(this);
+	Params.AddIgnoredActor(ControlledCharacter);
 
 	FHitResult HitResult;
 	World->SweepSingleByChannel(HitResult, TraceOrigin, TargetCameraLocation, FQuat::Identity,
